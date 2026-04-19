@@ -1,10 +1,134 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends 'base.html' %}
+{% block title %}Dashboard — EdgeLog{% endblock %}
 
-</body>
-</html>
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Dashboard</h1>
+        <p class="page-sub">Welcome back, {{ current_user.username }}.</p>
+    </div>
+    <a href="{{ url_for('trades.create') }}" class="btn-primary">+ LOG TRADE</a>
+</div>
+
+<!-- Stat Cards -->
+<div class="stat-grid">
+    <div class="stat-card">
+        <div class="stat-label">TOTAL P&L</div>
+        <div class="stat-value {% if stats.total_pnl >= 0 %}val-green{% else %}val-red{% endif %}">
+            {% if stats.total_pnl >= 0 %}+{% endif %}${{ "%.2f"|format(stats.total_pnl) }}
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">WIN RATE</div>
+        <div class="stat-value val-accent">{{ stats.win_rate }}%</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">AVG R-MULTIPLE</div>
+        <div class="stat-value {% if stats.avg_r >= 0 %}val-green{% else %}val-red{% endif %}">
+            {{ stats.avg_r }}R
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">CLOSED TRADES</div>
+        <div class="stat-value">{{ stats.closed_trades }}</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">OPEN TRADES</div>
+        <div class="stat-value val-accent">{{ stats.open_trades }}</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">WINS / LOSSES</div>
+        <div class="stat-value"><span class="val-green">{{ stats.wins }}</span> / <span class="val-red">{{ stats.losses }}</span></div>
+    </div>
+</div>
+
+<!-- Equity Curve Chart -->
+{% if equity_curve %}
+<div class="card" style="margin-bottom: 28px;">
+    <div class="card-header">
+        <span class="card-title">Equity Curve</span>
+        <span class="card-sub">Cumulative P&L</span>
+    </div>
+    <canvas id="equityChart" height="80"></canvas>
+</div>
+{% endif %}
+
+<div class="two-col">
+    <!-- Recent Trades -->
+    <div class="card">
+        <div class="card-header">
+            <span class="card-title">Recent Trades</span>
+            <a href="{{ url_for('trades.list_trades') }}" class="card-link">View all →</a>
+        </div>
+        {% if recent_trades %}
+        <table class="trade-table">
+            <thead>
+                <tr>
+                    <th>Instrument</th>
+                    <th>Dir</th>
+                    <th>Status</th>
+                    <th>P&L</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for t in recent_trades %}
+                <tr onclick="window.location='{{ url_for('trades.edit', trade_id=t.id) }}'" style="cursor:pointer">
+                    <td class="mono">{{ t.instrument }}</td>
+                    <td><span class="tag tag-{{ t.direction.lower() }}">{{ t.direction }}</span></td>
+                    <td><span class="tag tag-status-{{ t.status.lower() }}">{{ t.status }}</span></td>
+                    <td class="mono {% if t.pnl and t.pnl >= 0 %}val-green{% elif t.pnl %}val-red{% endif %}">
+                        {% if t.pnl is not none %}
+                            {% if t.pnl >= 0 %}+{% endif %}${{ "%.2f"|format(t.pnl) }}
+                        {% else %}—{% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p class="empty-state">No trades yet. <a href="{{ url_for('trades.create') }}">Log your first trade →</a></p>
+        {% endif %}
+    </div>
+
+    <!-- Flagged Trades -->
+    <div class="card">
+        <div class="card-header">
+            <span class="card-title">Flagged Trades</span>
+            <a href="{{ url_for('trades.list_trades') }}?flagged_only=1" class="card-link">View all →</a>
+        </div>
+        {% if flagged %}
+        <table class="trade-table">
+            <thead>
+                <tr>
+                    <th>Instrument</th>
+                    <th>Setup</th>
+                    <th>R</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for t in flagged %}
+                <tr onclick="window.location='{{ url_for('trades.edit', trade_id=t.id) }}'" style="cursor:pointer">
+                    <td class="mono">{{ t.instrument }}</td>
+                    <td>{{ t.setup }}</td>
+                    <td class="mono {% if t.r_multiple and t.r_multiple >= 0 %}val-green{% elif t.r_multiple %}val-red{% endif %}">
+                        {% if t.r_multiple is not none %}{{ t.r_multiple }}R{% else %}—{% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p class="empty-state">No flagged trades yet.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{% if equity_curve %}
+<script>
+    const equityData = {{ equity_curve | tojson }};
+    renderEquityChart('equityChart', equityData);
+</script>
+{% endif %}
+{% endblock %}
