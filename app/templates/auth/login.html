@@ -1,10 +1,36 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends 'base.html' %}
+{% block title %}Log In — EdgeLog{% endblock %}
 
-</body>
-</html>
+{% block content %}
+<div class="auth-card">
+    <div class="auth-header">
+        <div class="auth-logo">EDGELOG</div>
+        <p class="auth-sub">Sign in to your journal</p>
+    </div>
+
+    <form method="POST" action="{{ url_for('auth.login') }}" novalidate>
+        {{ form.hidden_tag() }}
+
+        <div class="form-group">
+            {{ form.email.label(class='form-label') }}
+            {{ form.email(class='form-input' + (' input-error' if form.email.errors else '')) }}
+            {% for e in form.email.errors %}<span class="form-error">{{ e }}</span>{% endfor %}
+        </div>
+
+        <div class="form-group">
+            {{ form.password.label(class='form-label') }}
+            {{ form.password(class='form-input' + (' input-error' if form.password.errors else '')) }}
+            {% for e in form.password.errors %}<span class="form-error">{{ e }}</span>{% endfor %}
+        </div>
+
+        <div class="form-group form-check">
+            {{ form.remember(class='form-checkbox') }}
+            {{ form.remember.label(class='form-label-inline') }}
+        </div>
+
+        <button type="submit" class="btn-primary btn-full">LOG IN →</button>
+    </form>
+
+    <p class="auth-footer">No account? <a href="{{ url_for('auth.register') }}">Create one</a></p>
+</div>
+{% endblock %}
