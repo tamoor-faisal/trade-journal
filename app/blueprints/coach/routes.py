@@ -2,7 +2,7 @@ from flask import render_template, redirect, url_for, flash, request
 from flask_login import login_required, current_user
 from app.blueprints.coach import coach_bp
 from app.services import get_trade_service
-from app.services.ai_service import get_session_feedback, get_trade_feedback
+from app.services.ai_services import get_session_feedback, get_trade_feedback
 from app.models import db, TradeFeedback
 
 
