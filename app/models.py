@@ -77,3 +77,21 @@ class Trade(db.Model):
 
     def __repr__(self):
         return f'<Trade {self.instrument} {self.direction} {self.trade_date}>'
+
+
+class TradeFeedback(db.Model):
+    __tablename__ = 'trade_feedback'
+
+    id = db.Column(db.Integer, primary_key=True)
+    trade_id = db.Column(db.Integer, db.ForeignKey('trades.id', ondelete='CASCADE'),
+                         nullable=True, index=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False, index=True)
+    feedback_type = db.Column(db.String(20), nullable=False)  # 'trade' or 'session'
+    content = db.Column(db.Text, nullable=False)
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
+
+    trade = db.relationship('Trade', backref=db.backref('feedback', uselist=False,
+                            cascade='all, delete-orphan', passive_deletes=True))
+
+    def __repr__(self):
+        return f'<TradeFeedback {self.feedback_type} user={self.user_id}>'

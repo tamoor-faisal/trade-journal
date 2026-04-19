@@ -406,3 +406,54 @@ canvas { width: 100% !important; }
     .main-content { padding: 16px; }
     .auth-layout  { padding-top: 40px; }
 }
+
+/* ── AI COACH ── */
+.coach-badge {
+    font-size: 11px;
+    font-family: var(--font-mono);
+    color: var(--accent);
+    background: rgba(200,241,53,0.08);
+    border: 1px solid rgba(200,241,53,0.25);
+    padding: 3px 10px;
+    letter-spacing: 0.08em;
+    vertical-align: middle;
+    margin-left: 12px;
+}
+
+.ai-output {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    line-height: 1.9;
+    color: var(--fg2);
+    white-space: pre-wrap;
+    border-left: 2px solid var(--accent);
+    padding: 16px 20px;
+    background: rgba(200,241,53,0.03);
+}
+
+.coach-empty {
+    text-align: center;
+    padding: 32px 20px;
+    color: var(--fg2);
+    font-size: 13px;
+}
+.coach-empty-icon {
+    font-size: 32px;
+    color: var(--fg3);
+    margin-bottom: 12px;
+    animation: pulse 2s ease-in-out infinite;
+}
+.coach-btn {
+    color: var(--accent);
+    border-color: rgba(200,241,53,0.3);
+    font-size: 10px;
+}
+.coach-btn:hover {
+    background: rgba(200,241,53,0.08);
+    border-color: var(--accent);
+}
+.feedback-done {
+    font-size: 10px;
+    color: var(--green);
+    letter-spacing: 0.06em;
+}

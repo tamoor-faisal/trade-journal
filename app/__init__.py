@@ -31,10 +31,12 @@ def create_app(config_name='default'):
     from app.blueprints.auth import auth_bp
     from app.blueprints.dashboard import dashboard_bp
     from app.blueprints.trades import trades_bp
+    from app.blueprints.coach import coach_bp
 
     app.register_blueprint(auth_bp, url_prefix='/auth')
     app.register_blueprint(dashboard_bp, url_prefix='/')
     app.register_blueprint(trades_bp, url_prefix='/trades')
+    app.register_blueprint(coach_bp, url_prefix='/coach')
 
     # Create tables
     with app.app_context():
