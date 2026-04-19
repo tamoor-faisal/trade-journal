@@ -91,12 +91,17 @@
 
 {% block extra_js %}
 <script>
+const csrfToken = document.querySelector('input[name="csrf_token"]') ?
+    document.querySelector('input[name="csrf_token"]').value : '';
+
 document.querySelectorAll('.flag-btn').forEach(btn => {
     btn.addEventListener('click', () => {
         const id = btn.dataset.id;
+        const formData = new FormData();
+        formData.append('csrf_token', csrfToken);
         fetch(`/trades/${id}/flag`, {
             method: 'POST',
-            headers: { 'X-CSRFToken': '{{ csrf_token() }}', 'Content-Type': 'application/json' }
+            body: formData
         })
         .then(r => r.json())
         .then(data => {
