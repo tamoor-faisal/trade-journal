@@ -3,6 +3,7 @@ from flask_login import login_required, current_user
 from app.blueprints.trades import trades_bp
 from app.blueprints.trades.forms import TradeForm, SearchForm
 from app.services import get_trade_service
+from app import csrf
 
 
 @trades_bp.route('/', methods=['GET'])
@@ -95,6 +96,7 @@ def delete(trade_id):
 
 @trades_bp.route('/<int:trade_id>/flag', methods=['POST'])
 @login_required
+@csrf.exempt
 def toggle_flag(trade_id):
     svc = get_trade_service()
     flagged = svc.toggle_flag(trade_id, current_user.id)

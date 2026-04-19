@@ -1,5 +1,6 @@
 from flask import Flask
 from flask_login import LoginManager
+from flask_wtf.csrf import CSRFProtect
 from app.models import db, User
 from config import config
 
@@ -8,6 +9,8 @@ login_manager = LoginManager()
 login_manager.login_view = 'auth.login'
 login_manager.login_message = 'Please log in to access your journal.'
 login_manager.login_message_category = 'info'
+
+csrf = CSRFProtect()
 
 
 @login_manager.user_loader
@@ -22,6 +25,7 @@ def create_app(config_name='default'):
     # Initialise extensions
     db.init_app(app)
     login_manager.init_app(app)
+    csrf.init_app(app)
 
     # Register blueprints
     from app.blueprints.auth import auth_bp
