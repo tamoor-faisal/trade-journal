@@ -1,10 +1,109 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends 'base.html' %}
+{% block title %}Trades — EdgeLog{% endblock %}
 
-</body>
-</html>
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Trades</h1>
+        <p class="page-sub">{{ trades|length }} trade{% if trades|length != 1 %}s{% endif %} found</p>
+    </div>
+    <a href="{{ url_for('trades.create') }}" class="btn-primary">+ LOG TRADE</a>
+</div>
+
+<!-- Search / Filter -->
+<div class="card search-card">
+    <form method="GET" action="{{ url_for('trades.list_trades') }}" class="search-form">
+        <div class="search-fields">
+            {{ form.instrument(class='form-input search-input', placeholder='Instrument...') }}
+            {{ form.direction(class='form-select') }}
+            {{ form.status(class='form-select') }}
+            {{ form.flagged_only(class='form-select') }}
+            <button type="submit" class="btn-primary">SEARCH</button>
+            <a href="{{ url_for('trades.list_trades') }}" class="btn-ghost-sm">CLEAR</a>
+        </div>
+    </form>
+</div>
+
+{% if trades %}
+<div class="card">
+    <table class="trade-table trade-table-full">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Instrument</th>
+                <th>Dir</th>
+                <th>Setup</th>
+                <th>Session</th>
+                <th>Entry</th>
+                <th>Exit</th>
+                <th>R-Mult</th>
+                <th>P&L</th>
+                <th>Status</th>
+                <th>Flag</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for t in trades %}
+        <tr>
+            <td class="mono">{{ t.trade_date.strftime('%d %b %y') }}</td>
+            <td class="mono font-bold">{{ t.instrument }}</td>
+            <td><span class="tag tag-{{ t.direction.lower() }}">{{ t.direction }}</span></td>
+            <td>{{ t.setup }}</td>
+            <td class="muted">{{ t.session or '—' }}</td>
+            <td class="mono">{{ t.entry_price }}</td>
+            <td class="mono">{{ t.exit_price or '—' }}</td>
+            <td class="mono {% if t.r_multiple and t.r_multiple >= 0 %}val-green{% elif t.r_multiple %}val-red{% endif %}">
+                {% if t.r_multiple is not none %}{{ t.r_multiple }}R{% else %}—{% endif %}
+            </td>
+            <td class="mono {% if t.pnl and t.pnl >= 0 %}val-green{% elif t.pnl %}val-red{% endif %}">
+                {% if t.pnl is not none %}
+                    {% if t.pnl >= 0 %}+{% endif %}${{ "%.2f"|format(t.pnl) }}
+                {% else %}—{% endif %}
+            </td>
+            <td><span class="tag tag-status-{{ t.status.lower() }}">{{ t.status }}</span></td>
+            <td>
+                <button class="flag-btn {% if t.is_flagged %}flagged{% endif %}"
+                        data-id="{{ t.id }}"
+                        title="{{ 'Unflag' if t.is_flagged else 'Flag' }} trade">
+                    {% if t.is_flagged %}★{% else %}☆{% endif %}
+                </button>
+            </td>
+            <td class="action-cell">
+                <a href="{{ url_for('trades.edit', trade_id=t.id) }}" class="btn-ghost-sm">EDIT</a>
+                <form method="POST" action="{{ url_for('trades.delete', trade_id=t.id) }}"
+                      onsubmit="return confirm('Delete this trade?')" style="display:inline">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit" class="btn-ghost-sm btn-danger">DEL</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="card empty-card">
+    <p class="empty-state">No trades match your search. <a href="{{ url_for('trades.create') }}">Log one now →</a></p>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.querySelectorAll('.flag-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        const id = btn.dataset.id;
+        fetch(`/trades/${id}/flag`, {
+            method: 'POST',
+            headers: { 'X-CSRFToken': '{{ csrf_token() }}', 'Content-Type': 'application/json' }
+        })
+        .then(r => r.json())
+        .then(data => {
+            btn.classList.toggle('flagged', data.flagged);
+            btn.textContent = data.flagged ? '★' : '☆';
+        });
+    });
+});
+</script>
+{% endblock %}

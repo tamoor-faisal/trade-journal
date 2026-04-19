@@ -1,10 +1,86 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends 'base.html' %}
+{% block title %}Log Trade — EdgeLog{% endblock %}
 
-</body>
-</html>
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Log Trade</h1>
+        <p class="page-sub">Record a new position in your journal.</p>
+    </div>
+    <a href="{{ url_for('trades.list_trades') }}" class="btn-ghost-sm">← Back</a>
+</div>
+
+<div class="card form-card">
+    <form method="POST" action="{{ url_for('trades.create') }}" novalidate>
+        {{ form.hidden_tag() }}
+
+        <div class="form-section-title">Position Details</div>
+        <div class="form-grid">
+            <div class="form-group">
+                {{ form.instrument.label(class='form-label') }}
+                {{ form.instrument(class='form-input' + (' input-error' if form.instrument.errors else '')) }}
+                {% for e in form.instrument.errors %}<span class="form-error">{{ e }}</span>{% endfor %}
+            </div>
+            <div class="form-group">
+                {{ form.direction.label(class='form-label') }}
+                {{ form.direction(class='form-select' + (' input-error' if form.direction.errors else '')) }}
+                {% for e in form.direction.errors %}<span class="form-error">{{ e }}</span>{% endfor %}
+            </div>
+            <div class="form-group">
+                {{ form.setup.label(class='form-label') }}
+                {{ form.setup(class='form-input' + (' input-error' if form.setup.errors else '')) }}
+                {% for e in form.setup.errors %}<span class="form-error">{{ e }}</span>{% endfor %}
+            </div>
+            <div class="form-group">
+                {{ form.session.label(class='form-label') }}
+                {{ form.session(class='form-select') }}
+            </div>
+            <div class="form-group">
+                {{ form.trade_date.label(class='form-label') }}
+                {{ form.trade_date(class='form-input') }}
+            </div>
+            <div class="form-group">
+                {{ form.status.label(class='form-label') }}
+                {{ form.status(class='form-select') }}
+            </div>
+        </div>
+
+        <div class="form-section-title">Prices</div>
+        <div class="form-grid">
+            <div class="form-group">
+                {{ form.entry_price.label(class='form-label') }}
+                {{ form.entry_price(class='form-input' + (' input-error' if form.entry_price.errors else '')) }}
+                {% for e in form.entry_price.errors %}<span class="form-error">{{ e }}</span>{% endfor %}
+            </div>
+            <div class="form-group">
+                {{ form.stop_loss.label(class='form-label') }}
+                {{ form.stop_loss(class='form-input' + (' input-error' if form.stop_loss.errors else '')) }}
+                {% for e in form.stop_loss.errors %}<span class="form-error">{{ e }}</span>{% endfor %}
+            </div>
+            <div class="form-group">
+                {{ form.take_profit.label(class='form-label') }}
+                {{ form.take_profit(class='form-input') }}
+            </div>
+            <div class="form-group">
+                {{ form.exit_price.label(class='form-label') }}
+                {{ form.exit_price(class='form-input') }}
+            </div>
+            <div class="form-group">
+                {{ form.position_size.label(class='form-label') }}
+                {{ form.position_size(class='form-input' + (' input-error' if form.position_size.errors else '')) }}
+                {% for e in form.position_size.errors %}<span class="form-error">{{ e }}</span>{% endfor %}
+            </div>
+        </div>
+
+        <div class="form-section-title">Notes</div>
+        <div class="form-group">
+            {{ form.notes(class='form-input form-textarea') }}
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn-primary">SAVE TRADE →</button>
+            <a href="{{ url_for('trades.list_trades') }}" class="btn-ghost-sm">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}
